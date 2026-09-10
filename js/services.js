@@ -274,7 +274,8 @@ FB.svc.runFn = async (fn, payload) => {
   const logs = [];
   const sandboxConsole = { log: (...a) => logs.push(a.map(String).join(' ')), warn: (...a) => logs.push('WARN ' + a.map(String).join(' ')), error: (...a) => logs.push('ERROR ' + a.map(String).join(' ')) };
   try {
-    const factory = new Function('exports', 'console', 'req', 'res', fn.code + '\n;return exports["' + fn.name + '"] || exports.default || (typeof ' + fn.name + ' !== "undefined" ? ' + fn.name + ' : null);');
+    const clean = String(fn.code).replace(/export\s+default\s+/g, '').replace(/export\s+(?=const|let|var|function|async\s+function|class)/g, '');
+    const factory = new Function('exports', 'console', 'req', 'res', clean + '\n;return exports["' + fn.name + '"] || exports.default || (typeof ' + fn.name + ' !== "undefined" ? ' + fn.name + ' : null);');
     const handler = factory({}, sandboxConsole, req, res);
     if (typeof handler !== 'function') throw new Error('No exported handler named "' + fn.name + '" found');
     await handler(req, res);

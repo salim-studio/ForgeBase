@@ -6,6 +6,20 @@ Open `index.html` directly in a browser (no build step, no dependencies).
 All services run on **local emulators** (IndexedDB + LocalStorage) and are
 clearly labeled `LOCAL EMULATOR` vs `CLOUD`.
 
+## Real backend (not a demo)
+
+`server/` is a genuine backend — Node.js + Express + SQLite/Postgres,
+JWT + API-key auth, WebSocket realtime, disk uploads, sandboxed function
+runner, server-side AI proxy, Docker. It serves this UI statically.
+
+```powershell
+cd server; npm install; node server.js   # → http://localhost:8080
+```
+
+Then **Project Settings → Cloud connection** → register/login.
+The badge flips `LOCAL` → `CLOUD`, every view talks REST, and edits
+broadcast live over WebSocket. See `server/README.md` for the full API.
+
 ## What's inside
 
 | Section | What works |

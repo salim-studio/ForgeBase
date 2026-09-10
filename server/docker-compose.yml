@@ -1,0 +1,33 @@
+services:
+  forgebase:
+    build: .
+    ports:
+      - "8080:8080"
+    environment:
+      PORT: 8080
+      JWT_SECRET: ${JWT_SECRET:-change-me-to-a-long-random-secret}
+      SQLITE_PATH: /data/forgebase.db
+      UPLOAD_DIR: /data/uploads
+      # AI proxy (optional — server-side only):
+      # AI_API_KEY: ${AI_API_KEY:-}
+      # AI_ENDPOINT: ${AI_ENDPOINT:-https://api.openai.com/v1}
+      # AI_MODEL: ${AI_MODEL:-gpt-4o-mini}
+      # Postgres instead of SQLite (optional):
+      # DATABASE_URL: postgres://forge:forge@db:5432/forgebase
+    volumes:
+      - forge-data:/data
+    restart: unless-stopped
+
+  # Optional Postgres — uncomment DATABASE_URL above to use it
+  # db:
+  #   image: postgres:16-alpine
+  #   environment:
+  #     POSTGRES_USER: forge
+  #     POSTGRES_PASSWORD: forge
+  #     POSTGRES_DB: forgebase
+  #   volumes:
+  #     - pg-data:/var/lib/postgresql/data
+
+volumes:
+  forge-data:
+  # pg-data:

@@ -199,6 +199,7 @@ async function boot() {
   catch (e) { console.error(e); $('#view').innerHTML = '<div class="empty"><h2>Storage unavailable</h2><p>' + FB.esc(String(e.message || e)) + '</p></div>'; return; }
   if (!location.hash) location.hash = '#/overview';
   FB.renderNav(); FB.renderProjectSelector(); FB.updateQuota(); renderNotifs();
+  if (FB.cloud) { FB.cloud.setBadge(); await FB.cloud.tryResume().catch(() => false); }
   FB.rerender();
   termPrint('ForgeBase local emulator ready. Type "help".', 'ok');
   termPrint('project: ' + (FB.currentId || 'none'));

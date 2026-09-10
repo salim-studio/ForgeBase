@@ -579,6 +579,7 @@ FB.views.settings = (view) => {
   const p = FB.current(); if (!p) { view.innerHTML = empty('No project', ''); return; }
   view.innerHTML =
     '<div class="page-head"><div><h2>Project Settings</h2><p class="muted">' + esc(p.id) + ' · created ' + FB.fmtTimeFull(p.createdAt) + '</p></div></div>' +
+    (FB.cloud ? FB.cloud.connHTML() : '') +
     '<div class="grid two"><div class="card"><div class="card-h"><b>General</b></div>' +
     '<label class="fld"><span>Project name</span><input id="setName" value="' + esc(p.name) + '"></label>' +
     '<label class="fld"><span>Description</span><input id="setDesc" value="' + esc(p.description || '') + '"></label>' +
