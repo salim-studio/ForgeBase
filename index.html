@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ForgeBase — Cloud Development Platform</title>
+<meta name="description" content="Browser-based Firebase-like development platform: projects, auth, database, storage, hosting, functions, AI agents. Local-first with IndexedDB emulators.">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<a class="skip-link" href="#view" data-i18n="skip">Skip to content</a>
+
+<div id="app">
+  <!-- ═══ Sidebar ═══ -->
+  <aside id="sidebar" aria-label="Main navigation">
+    <div class="brand">
+      <span class="brand-mark" aria-hidden="true">◈</span>
+      <span class="brand-name">ForgeBase</span>
+      <span class="env-badge" id="envBadge" title="Local emulator mode">LOCAL</span>
+      <button id="collapseBtn" class="icon-btn" aria-label="Collapse navigation">«</button>
+    </div>
+    <div class="ai-build-box">
+      <label for="aiBuildInput" data-i18n="aiBuildLabel">Describe what you want to build…</label>
+      <div class="ai-build-row">
+        <input id="aiBuildInput" type="text" data-i18n-ph="aiBuildPh" placeholder="e.g. e-commerce store with auth & orders">
+        <button id="aiBuildBtn" class="btn primary" data-i18n="build">Build</button>
+      </div>
+    </div>
+    <nav id="nav"><ul id="navList"></ul></nav>
+    <div class="sidebar-foot">
+      <div class="quota-card">
+        <div class="quota-row"><span data-i18n="dbSize">Database</span><b id="quotaDb">0 KB</b></div>
+        <div class="quota-row"><span data-i18n="storage">Storage</span><b id="quotaSt">0 KB</b></div>
+        <div class="quota-bar"><i id="quotaBar"></i></div>
+      </div>
+      <button id="docsBtn2" class="icon-btn wide" data-i18n="docs">Documentation</button>
+    </div>
+  </aside>
+  <div id="sidebarScrim"></div>
+
+  <!-- ═══ Main column ═══ -->
+  <div id="main">
+    <header id="topbar">
+      <button id="menuBtn" class="icon-btn only-mobile" aria-label="Open navigation">☰</button>
+      <div class="proj-select">
+        <label class="sr-only" for="projectSelector">Project</label>
+        <select id="projectSelector" aria-label="Select project"></select>
+        <button id="newProjectBtn" class="btn small" data-i18n="newProject">+ New</button>
+      </div>
+      <div class="top-search">
+        <input id="globalSearch" type="search" data-i18n-ph="searchPh" placeholder="Search docs, collections, files, users…  ( / )">
+      </div>
+      <div class="top-actions">
+        <button id="cmdkBtn" class="btn small ghost" title="Command palette (Ctrl+K)">⌘K</button>
+        <button id="terminalBtn" class="btn small ghost" title="Command Center (`)">›_</button>
+        <button id="themeBtn" class="icon-btn" title="Toggle dark/light theme">◐</button>
+        <button id="langBtn" class="icon-btn" title="العربية / English">ع</button>
+        <button id="notifBtn" class="icon-btn" title="Notifications" aria-label="Notifications">🔔<span id="notifDot" class="dot hidden"></span></button>
+        <button id="assistantBtn" class="btn small primary" data-i18n="aiAssistant">AI Assistant</button>
+      </div>
+    </header>
+    <div id="crumbBar"><span id="crumbs"></span><span id="saveState" class="save-state"></span></div>
+    <main id="view" tabindex="-1" aria-live="polite"></main>
+  </div>
+</div>
+
+<!-- ═══ Command palette ═══ -->
+<div id="palette" class="modal-backdrop hidden" role="dialog" aria-modal="true" aria-label="Command palette">
+  <div class="palette-box">
+    <input id="paletteInput" type="text" data-i18n-ph="palettePh" placeholder="Type a command or search… (create collection users, deploy, show logs)">
+    <ul id="paletteList" role="listbox"></ul>
+    <div class="palette-hint" data-i18n="paletteHint">Natural language works too — e.g. “build auth with admin roles”</div>
+  </div>
+</div>
+
+<!-- ═══ Command Center / terminal ═══ -->
+<div id="terminal" class="terminal hidden" role="dialog" aria-modal="false" aria-label="Command Center">
+  <div class="term-head">
+    <span>›_ <b data-i18n="cmdCenter">Command Center</b> <span class="term-proj" id="termProj"></span></span>
+    <span><button id="termClear" class="icon-btn">✕</button><button id="termClose" class="icon-btn">—</button></span>
+  </div>
+  <div id="termOut" class="term-out" aria-live="polite"></div>
+  <div class="term-in-row">
+    <span class="term-ps">›</span>
+    <input id="termIn" type="text" autocomplete="off" spellcheck="false" data-i18n-ph="termPh" placeholder='create collection users · deploy · show logs · "build auth with admin roles"'>
+  </div>
+</div>
+
+<!-- ═══ AI Assistant drawer ═══ -->
+<div id="assistantDrawer" class="drawer hidden" role="complementary" aria-label="AI Assistant">
+  <div class="drawer-head">
+    <b data-i18n="aiAssistant">AI Assistant</b>
+    <span id="asstCtx" class="ctx-chip"></span>
+    <button id="asstClose" class="icon-btn">✕</button>
+  </div>
+  <div id="asstMsgs" class="asst-msgs"></div>
+  <div class="asst-suggest" id="asstSuggest"></div>
+  <div class="asst-in-row">
+    <input id="asstIn" type="text" data-i18n-ph="asstPh" placeholder='Try: "Create a users collection" · "Generate security rules"'>
+    <button id="asstSend" class="btn primary" data-i18n="send">Send</button>
+  </div>
+</div>
+
+<!-- ═══ Notifications panel ═══ -->
+<div id="notifPanel" class="drawer right hidden" role="complementary" aria-label="Notifications">
+  <div class="drawer-head"><b data-i18n="notifs">Notifications</b><button id="notifClose" class="icon-btn">✕</button></div>
+  <div class="drawer-sub"><button id="notifClear" class="btn small ghost" data-i18n="clearAll">Clear all</button></div>
+  <ul id="notifList" class="notif-list"></ul>
+</div>
+
+<!-- ═══ Confirm modal ═══ -->
+<div id="confirmModal" class="modal-backdrop hidden" role="alertdialog" aria-modal="true">
+  <div class="modal-box">
+    <h3 id="cfTitle"></h3>
+    <p id="cfMsg"></p>
+    <label id="cfTypeWrap" class="hidden"><span data-i18n="typeToConfirm">Type the project ID to confirm:</span><input id="cfType" type="text" autocomplete="off"></label>
+    <div class="modal-actions">
+      <button id="cfCancel" class="btn ghost" data-i18n="cancel">Cancel</button>
+      <button id="cfOk" class="btn danger" data-i18n="confirm">Confirm</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ Generic modal ═══ -->
+<div id="modal" class="modal-backdrop hidden" role="dialog" aria-modal="true">
+  <div class="modal-box wide" id="modalBox"></div>
+</div>
+
+<div id="toasts" aria-live="assertive"></div>
+
+<noscript><p style="padding:2rem">ForgeBase requires JavaScript. / تتطلب المنصة تفعيل JavaScript.</p></noscript>
+<script src="js/core.js"></script>
+<script src="js/services.js"></script>
+<script src="js/ai.js"></script>
+<script src="js/views.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
